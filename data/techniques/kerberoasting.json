@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "id": "T1558.003",
+  "slug": "kerberoasting",
+  "title": "Kerberoasting",
+  "category": "active-directory",
+  "difficulty": "intermediate",
+  "orgId": null,
+  "attack": {
+    "tactic": "Credential Access",
+    "tacticId": "TA0006",
+    "attackUrl": "https://attack.mitre.org/techniques/T1558/003/",
+    "summary": "Any authenticated domain user can request a Kerberos service ticket (TGS) for an account that has a Service Principal Name. The ticket is encrypted with the service account's password hash, which the attacker extracts and cracks offline — no elevated access is needed to request it.",
+    "representativeCommand": "GetUserSPNs.py corp.local/user:pass -request -outputfile hashes.txt",
+    "commandNote": "Illustrative / lab-only. Shown to explain the artifact, not for use against systems you don't own."
+  },
+  "artifact": {
+    "source": "Windows Security Event Log",
+    "primaryEvent": "4769 (Kerberos service ticket requested)",
+    "keyFields": [
+      { "field": "TicketEncryptionType", "value": "0x17 (RC4)", "whyItMatters": "Modern AD uses AES (0x12/0x11); an RC4 TGS request is the anomaly roasting tools force so the hash is crackable." },
+      { "field": "ServiceName", "value": "<SPN account>", "whyItMatters": "Identifies which service account was targeted." }
+    ],
+    "sampleLogLine": "EventID=4769 TicketEncryptionType=0x17 ServiceName=svc_sql TicketOptions=0x40810000 Status=0x0"
+  },
+  "detection": {
+    "format": "sigma",
+    "ruleTitle": "Kerberoasting Activity Detection",
+    "source": "Adapted from SigmaHQ (community)",
+    "sourceUrl": "https://github.com/SigmaHQ/sigma",
+    "license": "DRL-1.1",
+    "rule": "title: Kerberoasting Activity Detection\nlogsource:\n  product: windows\n  service: security\ndetection:\n  selection:\n    EventID: 4769\n    TicketEncryptionType: '0x17'\n  filter:\n    ServiceName: 'krbtgt'\n  condition: selection and not filter\nlevel: high",
+    "annotations": [
+      { "line": "EventID: 4769", "explain": "Only look at Kerberos service-ticket (TGS) requests." },
+      { "line": "TicketEncryptionType: '0x17'", "explain": "RC4 — the weak cipher a roasting tool forces so the extracted hash is crackable offline. This is the core signal." },
+      { "line": "ServiceName: 'krbtgt' (excluded)", "explain": "Exclude the krbtgt account, whose 4769s are normal, to cut noise." }
+    ]
+  },
+  "falsePositives": [
+    "Legacy applications or systems that legitimately still negotiate RC4.",
+    "Older service accounts not yet migrated to AES.",
+    "Vulnerability scanners that enumerate SPNs."
+  ],
+  "mitigation": {
+    "summary": "Remove the crackable material and the weak cipher.",
+    "controls": [
+      "Enforce AES-only Kerberos; disable RC4 where possible.",
+      "Use long (25+ char) or group-managed service-account passwords (gMSA).",
+      "Alert on RC4 TGS requests; investigate bulk SPN enumeration."
+    ],
+    "attackDefendRef": "ATT&CK M1041, M1043"
+  },
+  "relatedSlugs": ["as-rep-roasting", "pass-the-hash"],
+  "tags": ["kerberos", "4769", "rc4", "service-account"]
+}

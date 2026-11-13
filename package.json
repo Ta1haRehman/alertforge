@@ -1,0 +1,16 @@
+{
+  "name": "alertforge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AlertForge — From Attack to Alert. A free, open platform for the attack -> artifact -> detection -> fix chain.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Qazi Talha Rehman",
+  "scripts": {
+    "validate:content": "node scripts/validate-content.mjs"
+  },
+  "devDependencies": {
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1"
+  }
+}

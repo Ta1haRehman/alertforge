@@ -1,0 +1,11 @@
+[
+  {
+    "slug": "kerberoasting",
+    "title": "Kerberoasting",
+    "id": "T1558.003",
+    "category": "active-directory",
+    "tactic": "Credential Access",
+    "difficulty": "intermediate",
+    "artifactSource": "Windows Security Event Log"
+  }
+]
