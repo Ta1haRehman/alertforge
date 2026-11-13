@@ -7,10 +7,23 @@
   "license": "MIT",
   "author": "Qazi Talha Rehman",
   "scripts": {
+    "dev": "vite",
+    "build": "npm run validate:content && vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
     "validate:content": "node scripts/validate-content.mjs"
   },
   "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "@tailwindcss/vite": "^4.3.5",
+    "@tsconfig/svelte": "^5.0.8",
+    "@types/node": "^24.19.2",
     "ajv": "^8.20.0",
-    "ajv-formats": "^3.0.1"
+    "ajv-formats": "^3.0.1",
+    "svelte": "^5.57.3",
+    "svelte-check": "^4.7.7",
+    "tailwindcss": "^4.3.5",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.6"
   }
 }
